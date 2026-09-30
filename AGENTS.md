@@ -26,6 +26,8 @@
 - Fastest correct +1 then auto-advance; wrong/stale presses are ephemeral-only.
 - Fresh `QuizView` per question; staleness is detected via `question_index`.
 - `Stop` only starter or `administrator`/`manage_guild`.
+- On start, the ephemeral setup message is deleted (`delete_original_response`);
+  only the public quiz + a followup note remain (see `test_setup_dismiss.py`).
 - Idle close via `tasks.loop(30s)` vs `JLPT_IDLE_TIMEOUT_SEC` (min 60).
 - No category column in data: 3 broad categories from `categories.classify()`
   (vocab/grammar/reading) over normalized `instruction` text; data/*.json

@@ -174,6 +174,8 @@ class SetupView(discord.ui.View):
         msg = await channel.send(embed=embeds.question_embed(session), view=view)  # type: ignore[attr-defined]
         session.message_id = msg.id
         session.touch()
+        # Dismiss the setup embed so only the public quiz remains visible.
+        await interaction.delete_original_response()
         await interaction.followup.send(
             f"Quiz started in <#{self.settings.channel_id}> ({len(pool)} questions).",
             ephemeral=True,
