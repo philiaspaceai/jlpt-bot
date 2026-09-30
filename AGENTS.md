@@ -15,7 +15,8 @@
 ## Architecture (one-way, keep it)
 - Pure (never import `discord`): `config.py`, `models.py`, `store.py`, `quiz.py`, `categories.py`
 - Discord layer: `bot.py`, `quiz_cog.py`, `views.py`, `embeds.py`
-- Direction: discord layer → `quiz.py` → `store.py/models.py` → `config.py`.
+- Direction: discord layer → `quiz.py` → `store.py/models.py` → `config.py`;
+  `categories.py` is a leaf (no repo imports) used by `store.py` + `views.py`.
   Never reverse. All `Embed` builders live in `embeds.py`; all
   `View/Select/Button` in `views.py`.
 
@@ -29,6 +30,10 @@
 - No category column in data: 3 broad categories from `categories.classify()`
   (vocab/grammar/reading) over normalized `instruction` text; data/*.json
   must never be edited. Counts: 5/10/15/20.
+  Trap: numbered passage blanks (19–23, 41–45) are grammar, but multi-part
+  headers like `次の(1)から(3)の文章を読んで` are reading — a generic
+  `\(\d+\)から\(\d+\)` regex misfiles ~200 questions. `test_categories.py`
+  snapshot counts lock the mapping; update them deliberately.
 - Anti-memorization: `shuffle_options()` per session, remap answer, never send
   original order. Embed size limits are enforced by `test_embeds.py`.
 
