@@ -14,10 +14,11 @@ import random
 import discord
 
 from . import embeds
+from .categories import ALL_LABEL, ALL_TYPES, BY_ID, CATEGORIES
 from .config import Settings
 from .models import QuizConfig
 from .quiz import QuizManager, QuizSession
-from .store import ALL_LEVELS, ALL_TYPES, COUNT_CHOICES, QuestionStore, shuffle_options
+from .store import ALL_LEVELS, COUNT_CHOICES, QuestionStore, shuffle_options
 
 log = logging.getLogger("jlpt_bot.views")
 
@@ -81,19 +82,21 @@ class SetupView(discord.ui.View):
         self._refresh_types()
 
     def _refresh_types(self) -> None:
-        if self.level == ALL_LEVELS:
-            opts = [discord.SelectOption(label="ALL types", value=ALL_TYPES, default=True)]
+        counts = self.store.category_counts(self.level)
+        opts = [discord.SelectOption(label=ALL_LABEL, value=ALL_TYPES, default=True)]
+        for cat in CATEGORIES:
+            n = counts.get(cat.id, 0)
+            if n == 0:
+                continue
+            opts.append(
+                discord.SelectOption(
+                    label=f"{cat.label} ({n})"[:100],
+                    value=cat.id,
+                    description=cat.description[:100],
+                )
+            )
+        if self.type_id not in {o.value for o in opts}:
             self.type_id = ALL_TYPES
-        else:
-            groups = self.store.type_groups(self.level)
-            opts = [discord.SelectOption(label="ALL types", value=ALL_TYPES, default=True)]
-            for g in groups:
-                label = g.short_label[:100] or g.type_id
-                opts.append(discord.SelectOption(label=label, value=g.type_id))
-            # Discord allows max 25 options; Select itself counts, so cap groups.
-            opts = opts[:25]
-            if self.type_id not in {o.value for o in opts}:
-                self.type_id = ALL_TYPES
         # Rebuild select options in place.
         self.type_select.options = opts
 
@@ -127,10 +130,11 @@ class SetupView(discord.ui.View):
             await interaction.response.send_message(embed=embeds.wrong_pool_embed(), ephemeral=True)
             return
 
-        type_label = ALL_TYPES
-        if self.type_id != ALL_TYPES and self.level != ALL_LEVELS:
-            mapping = {g.type_id: g.instruction for g in self.store.type_groups(self.level)}
-            type_label = mapping.get(self.type_id, self.type_id)[:200]
+        type_label = ALL_LABEL
+        if self.type_id != ALL_TYPES:
+            cat = BY_ID.get(self.type_id)
+            if cat is not None:
+                type_label = cat.label
 
         user = interaction.user
         name = getattr(user, "display_name", None) or getattr(user, "name", "player")

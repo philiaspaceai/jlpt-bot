@@ -1,4 +1,4 @@
-"""Question loading, mondai grouping, sampling, and option shuffling.
+"""Question loading, broad-category filtering, sampling, option shuffling.
 
 Pure Python module. No discord import allowed here so the quiz core
 stays testable without a Discord connection.
@@ -8,32 +8,15 @@ from __future__ import annotations
 
 import json
 import random
-from dataclasses import dataclass
 from pathlib import Path
 
+from . import categories
 from .models import Question, ShuffledQuestion
 
 LEVELS = ["N5", "N4", "N3", "N2", "N1"]
 ALL_LEVELS = "ALL"
-ALL_TYPES = "ALL"
+ALL_TYPES = categories.ALL_TYPES
 COUNT_CHOICES = [5, 10, 15, 20]
-
-
-@dataclass(frozen=True)
-class TypeGroup:
-    """One mondai group = one unique instruction string within a level."""
-
-    type_id: str
-    instruction: str
-    short_label: str
-    total: int
-
-
-def _shorten(text: str, limit: int = 80) -> str:
-    text = " ".join(text.split())
-    if len(text) <= limit:
-        return text
-    return text[: limit - 1] + "…"
 
 
 class QuestionStore:
@@ -82,44 +65,27 @@ class QuestionStore:
             return sum(len(v) for v in self._by_level.values())
         return len(self._by_level.get(level, []))
 
-    def type_groups(self, level: str) -> list[TypeGroup]:
-        """Group questions by exact instruction text (mondai grouping)."""
-        if level == ALL_LEVELS:
-            return []
-        questions = self._by_level.get(level, [])
-        seen: dict[str, list[Question]] = {}
-        for q in questions:
-            seen.setdefault(q.instruction, []).append(q)
-        groups: list[TypeGroup] = []
-        for idx, (instruction, qs) in enumerate(seen.items()):
-            groups.append(
-                TypeGroup(
-                    type_id=f"{level}-T{idx}",
-                    instruction=instruction,
-                    short_label=_shorten(f"{instruction} ({len(qs)})"),
-                    total=len(qs),
-                )
-            )
-        return groups
-
-    def _pool(self, level: str, type_id: str) -> list[Question]:
+    def _pool(self, level: str, category_id: str) -> list[Question]:
         if level == ALL_LEVELS:
             pool: list[Question] = []
             for lvl in LEVELS:
                 pool.extend(self._by_level.get(lvl, []))
+        else:
+            pool = list(self._by_level.get(level, []))
+        if category_id == ALL_TYPES or not category_id:
             return pool
-        pool = list(self._by_level.get(level, []))
-        if type_id == ALL_TYPES or not type_id:
-            return pool
-        # Resolve type_id -> instruction for this level.
-        mapping = {g.type_id: g.instruction for g in self.type_groups(level)}
-        instruction = mapping.get(type_id)
-        if instruction is None:
-            return pool
-        return [q for q in pool if q.instruction == instruction]
+        return [q for q in pool if categories.classify(q.instruction) == category_id]
 
-    def sample(self, level: str, type_id: str, count: int, rng: random.Random) -> list[Question]:
-        pool = self._pool(level, type_id)
+    def category_counts(self, level: str) -> dict[str, int]:
+        """Count questions per broad category; zero-count categories omitted."""
+        counts: dict[str, int] = {}
+        for q in self._pool(level, ALL_TYPES):
+            cat = categories.classify(q.instruction)
+            counts[cat] = counts.get(cat, 0) + 1
+        return counts
+
+    def sample(self, level: str, category_id: str, count: int, rng: random.Random) -> list[Question]:
+        pool = self._pool(level, category_id)
         if not pool:
             return []
         count = max(1, min(count, len(pool)))

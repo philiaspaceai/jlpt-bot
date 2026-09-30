@@ -13,7 +13,7 @@
 - Async tests need `@pytest.mark.asyncio` (`asyncio_mode = "strict"`).
 
 ## Architecture (one-way, keep it)
-- Pure (never import `discord`): `config.py`, `models.py`, `store.py`, `quiz.py`
+- Pure (never import `discord`): `config.py`, `models.py`, `store.py`, `quiz.py`, `categories.py`
 - Discord layer: `bot.py`, `quiz_cog.py`, `views.py`, `embeds.py`
 - Direction: discord layer → `quiz.py` → `store.py/models.py` → `config.py`.
   Never reverse. All `Embed` builders live in `embeds.py`; all
@@ -26,8 +26,9 @@
 - Fresh `QuizView` per question; staleness is detected via `question_index`.
 - `Stop` only starter or `administrator`/`manage_guild`.
 - Idle close via `tasks.loop(30s)` vs `JLPT_IDLE_TIMEOUT_SEC` (min 60).
-- No category column in data: type groups = exact `instruction` text per level
-  (`store.type_groups`); `ALL` level has no subgroups. Counts: 5/10/15/20.
+- No category column in data: 3 broad categories from `categories.classify()`
+  (vocab/grammar/reading) over normalized `instruction` text; data/*.json
+  must never be edited. Counts: 5/10/15/20.
 - Anti-memorization: `shuffle_options()` per session, remap answer, never send
   original order. Embed size limits are enforced by `test_embeds.py`.
 

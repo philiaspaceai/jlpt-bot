@@ -7,8 +7,8 @@ Built on **discord.py 2.7.1** exactly as documented in `docs/discord-py/`
 
 ## Features
 
-- `/jq start` opens a setup embed: level (N5–N1/ALL), question type
-  (mondai group derived from the `instruction` field), count (5/10/15/20).
+- `/jq start` opens a setup embed: level (N5–N1/ALL), question category
+  (Vocabulary / Grammar / Reading, bilingual labels), count (5/10/15/20).
 - Questions are random every session (`random.sample`).
 - Anti pattern-recognition: options are shuffled per session and the
   correct index is remapped. The original order is never sent to Discord.
@@ -60,7 +60,7 @@ quiz_cog.py / views.py / embeds.py / bot.py   (discord layer)
       -> config.py
 ```
 
-- `config.py`, `store.py`, `quiz.py` never import `discord`:
+- `config.py`, `store.py`, `quiz.py`, `categories.py` never import `discord`:
   testable without a connection.
 - `embeds.py` owns every `discord.Embed`.
 - `views.py` owns every `discord.ui.View/Select/Button`.

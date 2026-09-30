@@ -1,7 +1,8 @@
-"""Store tests: loading, mondai grouping, sampling."""
+"""Store tests: loading, category counts, sampling."""
 
 import random
 
+from jlpt_bot.categories import CATEGORIES, classify
 from jlpt_bot.store import ALL_LEVELS, QuestionStore
 
 
@@ -12,17 +13,12 @@ def test_load_real_data():
     assert store.total(ALL_LEVELS) == sum(store.total(l) for l in ["N5", "N4", "N3", "N2", "N1"])
 
 
-def test_type_groups_are_mondai_buckets():
+def test_category_counts_cover_every_question():
     store = QuestionStore.load("data")
-    groups = store.type_groups("N5")
-    assert len(groups) > 3
-    # Every question belongs to exactly one group.
-    total = sum(g.total for g in groups)
-    assert total == store.total("N5")
-    # Type ids are short and unique.
-    ids = [g.type_id for g in groups]
-    assert len(ids) == len(set(ids))
-    assert all(len(g.short_label) <= 100 for g in groups)
+    for level in ["N5", "N4", "N3", "N2", "N1"]:
+        counts = store.category_counts(level)
+        assert sum(counts.values()) == store.total(level)
+        assert set(counts) <= {c.id for c in CATEGORIES}
 
 
 def test_sample_is_random_and_bounded():
@@ -37,10 +33,8 @@ def test_sample_is_random_and_bounded():
     assert len(huge) == store.total("N5")
 
 
-def test_sample_type_filter():
+def test_sample_category_filter():
     store = QuestionStore.load("data")
-    groups = store.type_groups("N5")
-    gid = groups[0].type_id
-    sampled = store.sample("N5", gid, 5, random.Random(0))
+    sampled = store.sample("N1", "grammar", 5, random.Random(0))
     assert sampled
-    assert all(q.instruction == groups[0].instruction for q in sampled)
+    assert all(classify(q.instruction) == "grammar" for q in sampled)
