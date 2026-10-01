@@ -8,8 +8,8 @@ from jlpt_bot.store import LEVELS, QuestionStore
 # Snapshot of the mapping analysis (2026-09-30). If data grows, update the
 # table deliberately — a count shift means a rule regressed or new wording.
 EXPECTED_COUNTS = {
-    "N5": {"vocab": 45, "grammar": 69, "reading": 12},
-    "N4": {"vocab": 115, "grammar": 178, "reading": 48},
+    "N5": {"vocab": 156, "grammar": 230, "reading": 40},
+    "N4": {"vocab": 216, "grammar": 333, "reading": 92},
     "N3": {"vocab": 359, "grammar": 501, "reading": 240},
     "N2": {"vocab": 320, "grammar": 499, "reading": 279},
     "N1": {"vocab": 288, "grammar": 419, "reading": 376},

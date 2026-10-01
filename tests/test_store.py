@@ -8,7 +8,8 @@ from jlpt_bot.store import ALL_LEVELS, QuestionStore
 
 def test_load_real_data():
     store = QuestionStore.load("data")
-    assert store.total("N5") == 126
+    assert store.total("N5") == 426
+    assert store.total("N4") == 641
     assert store.total("N1") > 1000
     assert store.total(ALL_LEVELS) == sum(store.total(l) for l in ["N5", "N4", "N3", "N2", "N1"])
 
