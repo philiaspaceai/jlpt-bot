@@ -7,3 +7,5 @@ db/
 uv.lock
 dist/
 *.egg-info/
+
+design/
