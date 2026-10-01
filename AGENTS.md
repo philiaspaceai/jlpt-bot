@@ -22,6 +22,8 @@
   `quiz_cog.py` implements `views.QuizHooks` (EXP/rank/badge writes live there,
   never in views). Never reverse. All `Embed` builders live in `embeds.py`; all
   `View/Select/Button` in `views.py`.
+- Slash group `/jq`: `start`, `me`, `profile`, `leaderboard`, `info`, `badge`.
+  All but `info` require the configured guild+channel (`_guarded`).
 
 ## Quiz semantics (don't change silently)
 - One active session per process (`QuizManager` + `asyncio.Lock`); second
@@ -56,6 +58,17 @@
 - Profile PNGs render from `templates/` via WeasyPrint (`render.py`); rank art
   and themed icons ship under `src/jlpt_bot/assets/`. `design/` is review-only
   mockups, never imported by the bot.
+
+## Design (review mockups in `design/`, gitignored)
+- `profile-special.css` + per-rank sample HTML (`card-05-meijin.html` …,
+  `card-10-shindan.html`) + `preview-*.png` renders. One rank look = one
+  theme block in section 1; markup never changes per rank. Badge pills live
+  in the same file (they need theme vars); per-rank badge exceptions
+  (Meijin monochrome, Shindan legendary) sit next to the theme blocks.
+- WeasyPrint-safe CSS only: flexbox (no grid), flat colors (no `color-mix`),
+  no filters; locked/monochrome states are pre-rendered SVG files, and
+  `text-shadow`/`box-shadow` are verified working — re-verify visually if used.
+- Templates use `string.Template` `$VARS`; keep `$` out of CSS.
 
 ## Gotchas
 - `load_settings()` calls `dotenv.load_dotenv()` internally, so a real `.env`
