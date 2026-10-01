@@ -8,8 +8,11 @@ discord.py 2.7.1, see:
 
 from __future__ import annotations
 
+import datetime
 import logging
 import random
+import time
+from typing import Protocol
 
 import discord
 
@@ -33,11 +36,13 @@ def _is_admin(interaction: discord.Interaction) -> bool:
 class SetupView(discord.ui.View):
     """Level + type + count picker. Sent as an ephemeral message."""
 
-    def __init__(self, store: QuestionStore, manager: QuizManager, settings: Settings, timeout: float = 180):
+    def __init__(self, store: QuestionStore, manager: QuizManager, settings: Settings,
+                 hooks: QuizHooks | None = None, timeout: float = 180):
         super().__init__(timeout=timeout)
         self.store = store
         self.manager = manager
         self.settings = settings
+        self.hooks = hooks
         self.level: str = "N5"
         self.type_id: str = ALL_TYPES
         self.count: int = 10
@@ -170,10 +175,12 @@ class SetupView(discord.ui.View):
             await self.manager.stop()
             await interaction.followup.send("Configured channel not found.", ephemeral=True)
             return
-        view = QuizView(session=session, manager=self.manager, settings=self.settings)
+        view = QuizView(session=session, manager=self.manager, settings=self.settings, hooks=self.hooks)
         msg = await channel.send(embed=embeds.question_embed(session), view=view)  # type: ignore[attr-defined]
         session.message_id = msg.id
         session.touch()
+        if self.hooks is not None:
+            await self.hooks.on_session_start(session)
         # Dismiss the setup embed so only the public quiz remains visible.
         await interaction.delete_original_response()
         await interaction.followup.send(
@@ -186,15 +193,38 @@ class SetupView(discord.ui.View):
         await interaction.response.edit_message(content="Setup cancelled.", embed=None, view=None)
 
 
-class QuizView(discord.ui.View):
-    """Per-question buttons 1-4 plus Stop. A fresh view is posted per question."""
+class QuizHooks(Protocol):
+    """Data side of quiz events. Implemented by the cog (db + progression).
 
-    def __init__(self, session: QuizSession, manager: QuizManager, settings: Settings):
+    Views stay Discord-mechanics-only; all EXP/rank/badge work happens here.
+    """
+
+    async def on_session_start(self, session: QuizSession) -> None: ...
+    async def on_scoring_press(
+        self, *, user_id: int, name: str, level: str, correct: bool,
+        ms: int, hour: int, session_tag: str, channel: object,
+    ) -> None: ...
+    async def on_session_end(self, session: QuizSession, reason: str) -> str:
+        """Persist winner bonuses etc. Returns announcement text (may be '')."""
+        ...
+
+
+class QuizView(discord.ui.View):
+    """Per-question buttons 1-4 plus Stop.
+
+    New pipeline: the deciding press strips the buttons off the question
+    message, posts a reveal message, then posts the next question fresh.
+    """
+
+    def __init__(self, session: QuizSession, manager: QuizManager, settings: Settings,
+                 hooks: QuizHooks | None = None):
         super().__init__(timeout=None)
         self.session = session
         self.manager = manager
         self.settings = settings
+        self.hooks = hooks
         self.question_index = session.current_index
+        self.asked_at = time.time()
 
     async def _guard(self, interaction: discord.Interaction) -> bool:
         if interaction.guild_id != self.settings.guild_id or interaction.channel_id != self.settings.channel_id:
@@ -205,11 +235,16 @@ class QuizView(discord.ui.View):
             return False
         return True
 
+    def _disable(self) -> None:
+        for child in self.children:
+            child.disabled = True  # type: ignore[attr-defined]
+
     async def _press(self, interaction: discord.Interaction, picked: int) -> None:
         if not await self._guard(interaction):
             return
         user = interaction.user
         name = getattr(user, "display_name", None) or getattr(user, "name", "player")
+        ms = int((time.time() - self.asked_at) * 1000)
         result = await self.session.answer(
             user_id=user.id,
             display_name=name,
@@ -222,32 +257,45 @@ class QuizView(discord.ui.View):
         if result.kind == "finished":
             await interaction.response.send_message("This session is closed.", ephemeral=True)
             return
-        if result.kind == "wrong":
-            await interaction.response.send_message("Not correct.", ephemeral=True)
-            log.info("session %s q%s wrong by %s (%s)", self.session.session_id, self.question_index, name, user.id)
-            return
-        # Correct: fastest finger wins, auto-advance.
+        qnum = self.question_index + 1
+        total = self.session.total
         log.info(
-            "session %s q%s correct by %s (%s)",
-            self.session.session_id,
-            self.question_index,
-            name,
-            user.id,
+            "session %s q%s %s by %s (%s)",
+            self.session.session_id, self.question_index, result.kind, name, user.id,
         )
-        if self.session.is_finished():
-            await self.manager.clear_finished()
-            # Disable all buttons on the final message.
-            for child in self.children:
-                child.disabled = True  # type: ignore[attr-defined]
-            await interaction.response.edit_message(
-                embed=embeds.finished_embed(self.session), view=self
-            )
+        # 1. Strip the buttons, keep the question readable.
+        self._disable()
+        await interaction.response.edit_message(view=self)
+        channel = interaction.channel
+        # 2. Reveal message.
+        question = self.session.questions[self.question_index]
+        picked_text = question.displayed_options[picked - 1]
+        await channel.send(embed=embeds.reveal_embed(  # type: ignore[attr-defined]
+            qnum, total, picked, picked_text, result.kind == "correct",
+            name, result.correct_index, result.correct_text, result.mistake_no))
+        # 3. Data side (EXP/rank/badges) + halfway snapshot.
+        if self.hooks is not None:
+            await self.hooks.on_scoring_press(
+                user_id=user.id, name=name, level=question.source.level,
+                correct=result.kind == "correct", ms=ms,
+                hour=datetime.datetime.now().hour,
+                session_tag=self.session.tag, channel=channel)
+        self.session.maybe_snapshot_half_leader()
+        # 4. Finish or next question as a new message.
+        if result.finished:
+            notes = ""
+            if self.hooks is not None:
+                notes = await self.hooks.on_session_end(self.session, "finished")
+            await channel.send(  # type: ignore[attr-defined]
+                content=notes or None, embed=embeds.finished_embed(self.session))
             await self.manager.stop()
             log.info("session %s finished", self.session.session_id)
             return
-        # Post the next question as a fresh view so stale presses are detectable.
-        next_view = QuizView(session=self.session, manager=self.manager, settings=self.settings)
-        await interaction.response.edit_message(embed=embeds.question_embed(self.session), view=next_view)
+        next_view = QuizView(session=self.session, manager=self.manager,
+                             settings=self.settings, hooks=self.hooks)
+        msg = await channel.send(embed=embeds.question_embed(self.session), view=next_view)  # type: ignore[attr-defined]
+        self.session.message_id = msg.id
+        self.session.touch()
 
     @discord.ui.button(label="1", style=discord.ButtonStyle.primary, custom_id="jlpt:1")
     async def b1(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
@@ -278,8 +326,12 @@ class QuizView(discord.ui.View):
             return
         sess = self.session
         sess.close()
-        for child in self.children:
-            child.disabled = True  # type: ignore[attr-defined]
-        await interaction.response.edit_message(embed=embeds.stopped_embed(sess, name), view=self)
+        self._disable()
+        await interaction.response.edit_message(view=self)
+        notes = ""
+        if self.hooks is not None:
+            notes = await self.hooks.on_session_end(sess, f"stopped by {name}")
+        await interaction.channel.send(  # type: ignore[attr-defined]
+            content=notes or None, embed=embeds.stopped_embed(sess, name))
         await self.manager.stop()
         log.info("session %s stopped by %s (%s)", sess.session_id, name, user.id)

@@ -12,12 +12,20 @@ Built on **discord.py 2.7.1** exactly as documented in `docs/discord-py/`
 - Questions are random every session (`random.sample`).
 - Anti pattern-recognition: options are shuffled per session and the
   correct index is remapped. The original order is never sent to Discord.
-- Fastest finger wins: first correct answer gets +1 and auto-advances.
-  Wrong answers are ignored (ephemeral only).
+- Fastest finger wins: the **first press decides each question** (correct +1,
+  wrong = mistake +1) and advances immediately — brute-forcing all four
+  options is impossible. Mistakes never cost EXP.
+- New pipeline per question: buttons stripped (content stays) → reveal message
+  with the correct answer → next question as a new message (full history).
 - One active session per process, single server + single channel enforced.
 - Buttons `1/2/3/4` + `Stop` (starter or server admin with
   `Administrator`/`Manage Guild`). Idle 5 minutes auto-closes.
 - Session-only leaderboard embed when the quiz ends.
+- **Competitive ranks** (Houga → Shindan, 10 tiers) with level-scaled EXP,
+  level quotas, trials for ranks 8–10, season reset every 2 months.
+- **Badges**: 10 collectible, 8 display slots managed via `/jq badge`.
+- **Profile cards** (`/jq me`, `/jq profile`) rendered as 16:9 PNGs;
+  `/jq leaderboard` (season top 10), `/jq info` (guide, ephemeral).
 - Full logs to `log.txt` plus console.
 
 ## Quick start
@@ -48,6 +56,15 @@ Or use the launcher (used by systemd on the VPS):
 | `JLPT_DATA_DIR` | no | `data` |
 | `JLPT_LOG_PATH` | no | `log.txt` |
 | `JLPT_IDLE_TIMEOUT_SEC` | no | `300` |
+| `JLPT_DB_PATH` | no | `db/quiz.db` |
+| `JLPT_ARCHIVE_DIR` | no | `db/archive` |
+| `JLPT_CONFIG_PATH` | no | `config.yaml` |
+
+All progression numbers (ranks, EXP, gates, trials, bonuses, badges) live in
+`config.yaml` — tune there, never in code. The season database is a single
+SQLite file; on season rollover the whole file is archived to
+`db/archive/quiz-season-N.db` and a fresh one starts (lifetime = current +
+archives).
 
 ## Architecture
 

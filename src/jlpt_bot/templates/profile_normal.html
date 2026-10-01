@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  @page { size: $PAGE; margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  .ncard { width: 1280px; height: 720px; font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", sans-serif; background: #FFFDF7; color: #2A2118; }
+  .nband { height: 236px; padding: 26px 48px;
+    background: linear-gradient(115deg, var(--acc) 0%, var(--deep) 62%, #2E3440 130%);
+    display: flex; align-items: center; border-radius: 0 0 28px 28px; position: relative; overflow: hidden; }
+  .nband .stars { position: absolute; top: 0; left: 0; right: 0; bottom: 0; overflow: hidden; }
+  .nband .stars span { position: absolute; color: #FFFFFF; opacity: 0.35; }
+  .navatar { width: 150px; height: 150px; border-radius: 50%; background: var(--acc); border: 6px solid #FFFFFF;
+    display: flex; align-items: center; justify-content: center; font-size: 64px; font-weight: 900; color: #FFFFFF; flex-shrink: 0; overflow: hidden; }
+  .navatar img.avimg { width: 100%; height: 100%; border-radius: 50%; }
+  .nwho { margin-left: 26px; display: flex; flex-direction: column; align-items: flex-start; }
+  .nwho .name { font-size: 50px; font-weight: 900; color: #FFFFFF; line-height: 1.1; }
+  .nwho .title { font-size: 19px; color: #FFFFFF; opacity: 0.92; margin-top: 2px; }
+  .nrankmini { margin-top: 10px; background: #FFFFFF; border-radius: 999px; display: flex; align-items: center; padding: 6px 18px 6px 8px; }
+  .nrankmini img { width: 30px; height: 30px; }
+  .nrankmini span { font-size: 20px; font-weight: 900; margin-left: 8px; color: #2A2118; }
+  .nxp { margin-left: auto; width: 340px; text-align: right; }
+  .nxp .nums { color: #FFFFFF; font-size: 15px; margin-bottom: 8px; }
+  .nxp .nums b { font-size: 24px; }
+  .nxpbar { height: 16px; border-radius: 999px; background: rgba(255,255,255,0.35); border: 3px solid #FFFFFF; overflow: hidden; }
+  .nxpfill { height: 100%; background: #FFFFFF; border-radius: 999px; }
+  .nxpnext { color: #FFFFFF; opacity: 0.9; font-size: 14px; margin-top: 6px; }
+  .nbody { display: flex; padding: 22px 48px 0; }
+  .nleft { width: 640px; }
+  .nright { width: 500px; margin-left: 44px; }
+  .nbody h2 { font-size: 21px; font-weight: 900; margin: 0; }
+  .nbody h2 span { font-size: 14px; font-weight: 400; color: #8A8172; margin-left: 8px; }
+  .npills { display: flex; flex-wrap: wrap; margin-top: 12px; }
+  .npill { width: 148px; margin: 0 12px 12px 0; background: #FFFFFF; border: 2px solid #EDE4D2; border-radius: 16px; padding: 8px 12px; display: flex; align-items: center; }
+  .npill .v b { display: block; font-size: 21px; font-variant-numeric: tabular-nums; }
+  .npill .v span { display: block; font-size: 12px; color: #8A8172; }
+  .nlevels { margin-top: 6px; }
+  .nlvl { display: flex; align-items: center; margin-top: 7px; font-size: 14px; }
+  .nlvl i { font-style: normal; width: 30px; font-weight: 900; }
+  .nlvl .bar { width: 420px; height: 12px; border-radius: 999px; background: #EFE7D5; overflow: hidden; }
+  .nlvl .bar u { display: block; height: 100%; background: var(--acc); border-radius: 999px; }
+  .nlvl b { width: 54px; text-align: right; font-variant-numeric: tabular-nums; }
+  .nbpills { display: flex; flex-wrap: wrap; margin-top: 12px; }
+  .nbp { display: flex; align-items: center; margin: 0 10px 10px 0; background: #FFFFFF; border: 2px solid #EDE4D2; border-radius: 999px; padding: 6px 16px 6px 8px; }
+  .nbp img { width: 30px; height: 30px; }
+  .nbp span { font-size: 14px; font-weight: 700; margin-left: 8px; }
+  .nbp.rare { border-color: #B9D2F2; background: #F2F7FE; }
+  .nbp.epic { border-color: #D9C2F2; background: #F8F2FE; }
+  .nbp.legendary { border-color: #F0D48A; background: #FDF6E3; }
+  .nbp.locked { background: #F1EFE9; border-color: #E0DCD2; }
+  .nbp.locked span { color: #A8A29A; }
+  .nseason { margin-top: 8px; border-radius: 999px; padding: 10px 22px; background: linear-gradient(90deg, #58B368, #3E9B50); color: #FFFFFF; font-size: 15px; display: flex; }
+  .nseason b { font-size: 16px; }
+  .nseason .sp { flex: 1; }
+  .nfoot { display: flex; padding: 14px 48px 0; font-size: 13px; color: #8A8172; }
+  .nfoot .sp { flex: 1; }
+</style>
+</head>
+<body>
+<div class="ncard" style="$CSS_VARS">
+  <div class="nband"><div class="stars">$STARS</div>
+    <div class="navatar">$AVATAR</div>
+    <div class="nwho"><div class="name">$NAME</div><div class="title">$TITLE</div>
+    <div class="nrankmini"><img src="$RANK_ICON" alt=""><span>$RANK_LINE</span></div></div>
+    <div class="nxp"><div class="nums">$XP_LINE</div><div class="nxpbar"><div class="nxpfill" style="width:$XP_PCT%"></div></div><div class="nxpnext">$XP_NEXT</div></div>
+  </div>
+  <div class="nbody"><div class="nleft">
+    <h2>Battle record <span>season $SEASON_ID • all levels</span></h2>
+    <div class="npills">$STATS</div>
+    <div class="nlevels">$LEVELS</div></div>
+    <div class="nright"><h2>Badges <span>$BADGE_COUNT</span></h2>
+      <div class="nbpills">$BADGES</div>
+      <div class="nseason"><span>Season $SEASON_ID • <b>$DAYS_LEFT days</b> left</span><span class="sp"></span><span>Day streak <b>$STREAK</b> • Lifetime <b>$LIFETIME EXP</b></span></div>
+    </div></div>
+  <div class="nfoot"><span>JLPT Quiz Bot • competitive season</span><span class="sp"></span><span>$RANK_NO</span></div>
+</div>
+</body>
+</html>

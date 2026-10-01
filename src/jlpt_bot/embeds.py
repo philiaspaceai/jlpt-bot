@@ -88,6 +88,25 @@ def question_embed(session: QuizSession) -> discord.Embed:
     return embed
 
 
+def reveal_embed(qnum: int, total: int, picked: int, picked_text: str, correct: bool,
+                 picker_name: str, correct_index: int, correct_text: str,
+                 mistake_no: int = 0) -> discord.Embed:
+    if correct:
+        embed = discord.Embed(
+            title=f"Q{qnum}/{total} — ✅ {picker_name} (+1)",
+            description=f"Correct answer: **{correct_index}. {correct_text}**",
+            colour=discord.Colour(SUCCESS),
+        )
+    else:
+        embed = discord.Embed(
+            title=f"Q{qnum}/{total} — ❌ {picker_name} (mistake #{mistake_no})",
+            description=f"{picker_name} pressed **{picked}. {picked_text}**.\n"
+                        f"Correct answer: **{correct_index}. {correct_text}**",
+            colour=discord.Colour(CLOSED),
+        )
+    return embed
+
+
 def finished_embed(session: QuizSession, reason: str = "Quiz finished!") -> discord.Embed:
     embed = discord.Embed(title=f"🏁 {reason}", colour=discord.Colour(SUCCESS))
     board = session.leaderboard()

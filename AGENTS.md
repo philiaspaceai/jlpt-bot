@@ -13,17 +13,23 @@
 - Async tests need `@pytest.mark.asyncio` (`asyncio_mode = "strict"`).
 
 ## Architecture (one-way, keep it)
-- Pure (never import `discord`): `config.py`, `models.py`, `store.py`, `quiz.py`, `categories.py`
+- Pure (never import `discord`): `config.py`, `models.py`, `store.py`, `quiz.py`, `categories.py`,
+  `progression.py`, `badges.py`, `render.py`
 - Discord layer: `bot.py`, `quiz_cog.py`, `views.py`, `embeds.py`
+- Infra: `db.py` (aiosqlite, single-writer lock)
 - Direction: discord layer → `quiz.py` → `store.py/models.py` → `config.py`;
   `categories.py` is a leaf (no repo imports) used by `store.py` + `views.py`.
-  Never reverse. All `Embed` builders live in `embeds.py`; all
+  `quiz_cog.py` implements `views.QuizHooks` (EXP/rank/badge writes live there,
+  never in views). Never reverse. All `Embed` builders live in `embeds.py`; all
   `View/Select/Button` in `views.py`.
 
 ## Quiz semantics (don't change silently)
 - One active session per process (`QuizManager` + `asyncio.Lock`); second
   `/jq start` must be rejected with `busy_embed`.
-- Fastest correct +1 then auto-advance; wrong/stale presses are ephemeral-only.
+- First press decides each question (correct +1, wrong = mistake +1) and
+  advances immediately — no brute-forcing. Mistakes never reduce EXP.
+- New pipeline per question: strip buttons (keep content) → reveal message →
+  next question as a NEW message (history preserved, see `test_answer_flow.py`).
 - Fresh `QuizView` per question; staleness is detected via `question_index`.
 - `Stop` only starter or `administrator`/`manage_guild`.
 - On start, the ephemeral setup message is deleted (`delete_original_response`);
@@ -38,6 +44,18 @@
   snapshot counts lock the mapping; update them deliberately.
 - Anti-memorization: `shuffle_options()` per session, remap answer, never send
   original order. Embed size limits are enforced by `test_embeds.py`.
+
+## Progression (tuned in config.yaml — code reads, never hardcodes)
+- 10 ranks Houga→Shindan (700k for Shindan, 1M lifetime ceiling); EXP only for
+  the scorer, scaled by question level; level quotas gate each rank; trials
+  for ranks 8–10 (rolling accuracy, wins, N1 streak).
+- 10 badges, 8 display slots (`/jq badge` equip UI); conditions in `badges.py`,
+  storage in `db.py`. Clean = session win with zero mistakes.
+- Season DB is one SQLite file; rollover archives the whole file to
+  `db/archive/` and starts fresh. Lifetime = current + archives.
+- Profile PNGs render from `templates/` via WeasyPrint (`render.py`); rank art
+  and themed icons ship under `src/jlpt_bot/assets/`. `design/` is review-only
+  mockups, never imported by the bot.
 
 ## Gotchas
 - `load_settings()` calls `dotenv.load_dotenv()` internally, so a real `.env`

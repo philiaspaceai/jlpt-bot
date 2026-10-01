@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  @page { size: $PAGE; margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  .scard { width: 1280px; font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", sans-serif; background: var(--bg); color: #F2EDE3; }
+  .sband { height: 480px; position: relative; overflow: hidden; }
+  .sband img.art { position: absolute; top: 0; left: 0; width: 1280px; height: 480px; }
+  .sseason { position: absolute; top: 18px; right: 24px; background: rgba(10,17,48,0.72);
+    border: 2px solid var(--trim); border-radius: 999px; padding: 8px 20px; font-size: 15px; color: #FFFFFF; }
+  .sseason b { color: var(--trim); }
+  .sid { position: absolute; left: 48px; bottom: 30px; display: flex; align-items: center; }
+  .savatar { width: 104px; height: 104px; border-radius: 50%; background: #FFFFFF; border: 5px solid var(--trim);
+    display: flex; align-items: center; justify-content: center; font-size: 46px; font-weight: 900; color: #0A1130; flex-shrink: 0; overflow: hidden; }
+  .savatar img.avimg { width: 100%; height: 100%; border-radius: 50%; }
+  .swho { margin-left: 20px; display: flex; flex-direction: column; align-items: flex-start; }
+  .swho .nm { font-size: 42px; font-weight: 900; color: var(--nmc); line-height: 1.1;
+    text-shadow: 0 2px 10px var(--tsh), 0 0 6px var(--tsh), 0 0 3px var(--tsh); }
+  .swho .tt { font-size: 17px; color: var(--tt); margin-top: 2px;
+    text-shadow: 0 2px 8px var(--tsh), 0 0 4px var(--tsh); }
+  .srankmini { margin-top: 10px; background: #FFFFFF; border: 2px solid var(--trim); border-radius: 999px;
+    display: flex; align-items: center; padding: 5px 16px 5px 7px; }
+  .srankmini img { width: 28px; height: 28px; }
+  .srankmini span { font-size: 18px; font-weight: 900; margin-left: 8px; color: #2A2118; }
+  .sxp { position: absolute; right: 48px; bottom: 44px; text-align: right; color: var(--nmc); font-size: 20px;
+    text-shadow: 0 2px 8px var(--tsh), 0 0 3px var(--tsh); }
+  .sxp b { font-size: 42px; }
+  .sbar { position: absolute; left: 0; right: 0; bottom: 0; height: 9px; background: var(--barbg); }
+  .sfill { height: 100%; background: linear-gradient(90deg, var(--acc2), var(--acc)); }
+  .sbody { padding: 22px 48px 0; }
+  .sbody h2 { font-size: 21px; font-weight: 900; color: var(--ink); border-left: 6px solid var(--acc); padding-left: 10px; margin: 0; }
+  .sbody h2 span { font-size: 14px; font-weight: 400; color: var(--muted); margin-left: 8px; }
+  .sppills { display: flex; flex-wrap: wrap; margin-top: 12px; }
+  .sppill { width: 182px; margin: 0 12px 12px 0; background: var(--pill); border: 2px solid var(--pline);
+    border-radius: 16px; padding: 8px 12px; display: flex; align-items: center;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.45); }
+  .sppill .v b { display: block; font-size: 20px; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .sppill .v span { display: block; font-size: 12px; color: var(--muted); }
+  .sbottom { display: flex; margin-top: 6px; }
+  .slevels { width: 600px; }
+  .slvl { display: flex; align-items: center; margin-top: 8px; font-size: 14px; color: var(--sub); }
+  .slvl i { font-style: normal; width: 30px; font-weight: 900; color: var(--ink); }
+  .slvl .bar { width: 430px; height: 12px; border-radius: 999px; background: var(--track); overflow: hidden; }
+  .slvl .bar u { display: block; height: 100%; background: linear-gradient(90deg, var(--acc2), var(--acc)); border-radius: 999px; }
+  .slvl b { width: 60px; text-align: right; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .sbcol { width: 524px; margin-left: 40px; }
+  .sbpills { display: flex; flex-wrap: wrap; margin-top: 12px; }
+  .sbp { display: flex; align-items: center; margin: 0 10px 10px 0; background: var(--pill); border: 2px solid var(--bline);
+    border-radius: 999px; padding: 6px 15px 6px 8px; box-shadow: 0 3px 10px rgba(0,0,0,0.45); }
+  .sbp img { width: 28px; height: 28px; }
+  .sbp span { font-size: 13px; font-weight: 700; margin-left: 7px; color: var(--ink); }
+  .sbp.rare { border-color: #4A90C4; background: #16294D; }
+  .sbp.epic { border-color: #B06AE0; background: #241B4D; }
+  .sbp.legendary { border-color: #F5C542; background: #2E2410; }
+  .sbp.locked { background: var(--locked); border-color: var(--lockedline); box-shadow: none; }
+  .sbp.locked span { color: var(--lockedtxt); }
+  .sfoot { display: flex; padding: 16px 48px 20px; font-size: 13px; color: var(--foot); background: var(--bg); }
+  .sfoot .sp { flex: 1; }
+$EXTRA_CSS
+</style>
+</head>
+<body>
+<div class="$CARD_CLASS" style="$CSS_VARS">
+  <div class="sband"><img class="art" src="$BANNER" alt="">
+    <div class="sseason">Season $SEASON_ID • <b>$DAYS_LEFT days</b> left • streak <b>$STREAK</b></div>
+    <div class="sid"><div class="savatar">$AVATAR</div>
+      <div class="swho"><div class="nm">$NAME</div><div class="tt">$TITLE</div>
+      <div class="srankmini"><img src="$RANK_ICON" alt=""><span>$RANK_LINE</span></div></div></div>
+    <div class="sxp">$XP_LINE<br>$XP_NEXT</div>
+    <div class="sbar"><div class="sfill" style="width:$XP_PCT%"></div></div>
+  </div>
+  <div class="sbody">
+    <h2>Battle record <span>season $SEASON_ID • all levels</span></h2>
+    <div class="sppills">$STATS</div>
+    <div class="sbottom">
+      <div class="slevels">$LEVELS</div>
+      <div class="sbcol">
+        <h2>Badges <span>$BADGE_COUNT</span></h2>
+        <div class="sbpills">$BADGES</div>
+      </div>
+    </div>
+  </div>
+  <div class="sfoot"><span>JLPT Quiz Bot • competitive season • lifetime $LIFETIME EXP</span><span class="sp"></span><span>$RANK_NO</span></div>
+</div>
+</body>
+</html>

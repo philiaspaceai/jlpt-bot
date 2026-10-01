@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
-import discord
+import yaml
 
 from .bot import build_bot
 from .config import load_settings
-from .logging_setup import get_logger, setup_logging
+from .db import Database
+from .logging_setup import setup_logging
 from .quiz import QuizManager
 from .store import QuestionStore
 
@@ -20,6 +21,8 @@ def main() -> None:
         settings.channel_id,
         settings.data_dir,
     )
+    with open(settings.config_path, encoding="utf-8") as fh:
+        prog = yaml.safe_load(fh)
     store = QuestionStore.load(settings.data_dir)
     logger.info(
         "loaded questions N5=%s N4=%s N3=%s N2=%s N1=%s",
@@ -30,7 +33,8 @@ def main() -> None:
         store.total("N1"),
     )
     manager = QuizManager()
-    bot = build_bot(settings, store, manager)
+    db = Database(settings.db_path, settings.archive_dir)
+    bot = build_bot(settings, store, manager, db, prog)
     # Client.run is blocking and handles the event loop (docs/discord-py/api.md).
     bot.run(settings.token, log_handler=None)
 

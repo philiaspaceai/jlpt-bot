@@ -8,13 +8,15 @@ import discord
 from discord.ext import commands
 
 from .config import Settings
+from .db import Database
 from .quiz import QuizManager
 from .store import QuestionStore
 
 log = logging.getLogger("jlpt_bot.bot")
 
 
-def build_bot(settings: Settings, store: QuestionStore, manager: QuizManager) -> commands.Bot:
+def build_bot(settings: Settings, store: QuestionStore, manager: QuizManager,
+              db: Database, prog: dict) -> commands.Bot:
     intents = discord.Intents.default()
     bot = commands.Bot(command_prefix="!", intents=intents)
     bot.settings = settings  # type: ignore[attr-defined]
@@ -24,7 +26,8 @@ def build_bot(settings: Settings, store: QuestionStore, manager: QuizManager) ->
     from .quiz_cog import QuizCog
 
     async def _setup_hook() -> None:
-        await bot.add_cog(QuizCog(bot, settings, store, manager))
+        await db.open()
+        await bot.add_cog(QuizCog(bot, settings, store, manager, db, prog))
         # Sync slash commands to the single guild for instant availability.
         try:
             guild = discord.Object(id=settings.guild_id)

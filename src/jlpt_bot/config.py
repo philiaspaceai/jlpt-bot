@@ -14,6 +14,9 @@ class Settings:
     data_dir: str = "data"
     log_path: str = "log.txt"
     idle_timeout_sec: int = 300
+    db_path: str = "db/quiz.db"
+    archive_dir: str = "db/archive"
+    config_path: str = "config.yaml"
 
 
 def _get_env(name: str, default: str | None = None) -> str | None:
@@ -41,7 +44,9 @@ def load_settings() -> Settings:
     data_dir = _get_env("JLPT_DATA_DIR", "data") or "data"
     log_path = _get_env("JLPT_LOG_PATH", "log.txt") or "log.txt"
     idle_raw = _get_env("JLPT_IDLE_TIMEOUT_SEC", "300") or "300"
-
+    db_path = _get_env("JLPT_DB_PATH", "db/quiz.db") or "db/quiz.db"
+    archive_dir = _get_env("JLPT_ARCHIVE_DIR", "db/archive") or "db/archive"
+    config_path = _get_env("JLPT_CONFIG_PATH", "config.yaml") or "config.yaml"
     missing = [k for k, v in {"DISCORD_TOKEN": token, "JLPT_GUILD_ID": guild_raw, "JLPT_CHANNEL_ID": channel_raw}.items() if not v]
     if missing:
         raise RuntimeError(f"Missing required env vars: {', '.join(missing)}. See .env.example.")
@@ -69,6 +74,9 @@ def load_settings() -> Settings:
         data_dir=data_dir,
         log_path=log_path,
         idle_timeout_sec=idle_timeout_sec,
+        db_path=db_path,
+        archive_dir=archive_dir,
+        config_path=config_path,
     )
 
 

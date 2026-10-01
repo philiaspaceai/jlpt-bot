@@ -1,0 +1,47 @@
+# jlpt-bot progression tuning. Numbers approved 2026-10-01.
+# Season EXP resets every `season_months`; the whole SQLite file is archived.
+
+season:
+  months: 2
+
+exp:
+  lifetime_ceiling: 1000000
+  base_by_level: { N5: 10, N4: 20, N3: 40, N2: 80, N1: 150 }
+  speed_bonus: { within_sec: 5, pct: 25 }
+  streak_bonus: [{ n: 3, flat: 10 }, { n: 5, flat: 25 }, { n: 10, flat: 60 }]
+  clean_session_win: { flat: 100 }
+  comeback_win: { flat: 50 }
+  giant_slay_win: { flat: 50 }
+  daily_first_answer: { flat: 50 }
+  weekend_double: true
+  daily_soft_cap: [{ upto: 100, mult: 1.0 }, { upto: 200, mult: 0.5 }, { mult: 0.1 }]
+
+# gates: minimum CORRECT answers at exact level to enter the rank.
+# trials: extra checks for ranks 8-10 (all must hold).
+ranks:
+  - { id: houga,   en: Houga,   ja: "萌芽", threshold: 0, color: "#5DA24A" }
+  - { id: reimei,  en: Reimei,  ja: "黎明", threshold: 2000, color: "#D98A1F", gates: { N5: 20 } }
+  - { id: saku,    en: Saku,    ja: "咲", threshold: 8000, color: "#D95D87", gates: { N5: 60, N4: 30 } }
+  - { id: seikou,  en: Seikou,  ja: "星光", threshold: 20000, color: "#4A90C4", gates: { N5: 60, N4: 100 } }
+  - { id: meijin,  en: Meijin,  ja: "名人", threshold: 45000, color: "#C9A227", gates: { N4: 100, N3: 50 } }
+  - { id: shinsei, en: Shinsei, ja: "新星", threshold: 90000, color: "#2F6FED", gates: { N3: 150 } }
+  - { id: seikan,  en: Seikan,  ja: "星冠", threshold: 160000, color: "#8A94A6", gates: { N3: 150, N2: 50 } }
+  - { id: ryuusei, en: Ryuusei, ja: "流星", threshold: 260000, color: "#4A90C4", gates: { N2: 200 },
+      trials: [{ type: accuracy_window, n: 100, min_acc: 0.80, levels: [N2, N1] }] }
+  - { id: suisei,  en: Suisei,  ja: "彗星", threshold: 430000, color: "#59D6E6", gates: { N2: 300, N1: 100 },
+      trials: [{ type: accuracy_window, n: 100, min_acc: 0.85, levels: [N1] }, { type: session_wins, n: 5 }] }
+  - { id: shindan, en: Shindan, ja: "神断", threshold: 700000, color: "#B98A12", gates: { N1: 500 },
+      trials: [{ type: n1_firstblood_streak, n: 10 }] }
+
+# Badges: 10 collectible, 8 display slots. type = condition engine key.
+badges:
+  - { id: firstblood,    en: "First Blood", ja: "先取",     rarity: common,    icon: firstblood,   cond: { type: first_bloods, n: 1 } }
+  - { id: onfire,        en: "On Fire",     ja: "連勝",     rarity: common,    icon: onfire,  cond: { type: best_streak, n: 5 } }
+  - { id: earlybird,     en: "Early Bird",  ja: "早起き",   rarity: common,    icon: earlybird, cond: { type: early_bird } }
+  - { id: nightowl,      en: "Night Owl",   ja: "夜更かし", rarity: rare,      icon: nightowl,    cond: { type: night_owl } }
+  - { id: sharpshooter,  en: "Sharpshooter", ja: "百発百中", rarity: rare,      icon: sharpshooter, cond: { type: accuracy_window, n: 20, min_acc: 0.90 } }
+  - { id: unstoppable,   en: "Unstoppable", ja: "無双",     rarity: epic,      icon: unstoppable,   cond: { type: best_streak, n: 10 } }
+  - { id: giantslayer,   en: "Giant Slayer", ja: "大物殺し", rarity: epic,      icon: giantslayer, cond: { type: giant_slays, n: 1 } }
+  - { id: perfectionist, en: "Perfectionist", ja: "完全無欠", rarity: legendary, icon: perfectionist,  cond: { type: clean_sessions, n: 1 } }
+  - { id: careful,       en: Careful,       ja: "慎重",     rarity: rare,      icon: careful, cond: { type: best_streak, n: 25 } }
+  - { id: human,         en: "Human After All", ja: "人間だもの", rarity: common, icon: human, cond: { type: mistakes_total, n: 100 } }

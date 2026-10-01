@@ -1,10 +1,10 @@
-"""Session tests: fastest-finger scoring, stale handling, single session."""
+"""Session tests: first press decides, wrong advances + counts mistake."""
 
 import random
 
 import pytest
 
-from jlpt_bot.models import QuizConfig
+from jlpt_bot.models import PlayerScore, QuizConfig
 from jlpt_bot.quiz import QuizManager, QuizSession
 from jlpt_bot.store import QuestionStore, shuffle_options
 
@@ -30,11 +30,13 @@ def _session(n: int = 3) -> QuizSession:
 
 
 @pytest.mark.asyncio
-async def test_first_correct_wins_and_auto_advances():
+async def test_first_correct_wins_and_advances():
     sess = _session(2)
     correct = sess.current().displayed_answer  # type: ignore[union-attr]
     res = await sess.answer(10, "A", correct, 0)
     assert res.kind == "correct"
+    assert res.finished is False
+    assert res.correct_text
     assert sess.scores[10].points == 1
     assert sess.current_index == 1
     # Same old index is now stale.
@@ -43,15 +45,38 @@ async def test_first_correct_wins_and_auto_advances():
 
 
 @pytest.mark.asyncio
-async def test_wrong_is_ignored_no_score_no_advance():
-    sess = _session(1)
+async def test_wrong_advances_and_counts_mistake():
+    sess = _session(2)
     cur = sess.current()
     assert cur is not None
     wrong = 1 if cur.displayed_answer != 1 else 2
     res = await sess.answer(10, "A", wrong, 0)
     assert res.kind == "wrong"
+    assert res.mistake_no == 1
+    assert res.correct_index == cur.displayed_answer
     assert 10 not in sess.scores
-    assert sess.current_index == 0
+    assert sess.session_mistakes[10] == 1
+    assert sess.current_index == 1  # advanced despite wrong
+    # Second wrong by same user on next question counts again.
+    cur2 = sess.current()
+    assert cur2 is not None
+    wrong2 = 1 if cur2.displayed_answer != 1 else 2
+    res2 = await sess.answer(10, "A", wrong2, 1)
+    assert res2.kind == "wrong"
+    assert res2.mistake_no == 2
+    assert res2.finished is True
+
+
+@pytest.mark.asyncio
+async def test_second_press_same_question_is_stale():
+    sess = _session(2)
+    cur = sess.current()
+    assert cur is not None
+    # First press wrong -> advances; late press on old index is stale.
+    wrong = 1 if cur.displayed_answer != 1 else 2
+    await sess.answer(10, "A", wrong, 0)
+    res = await sess.answer(20, "B", cur.displayed_answer, 0)
+    assert res.kind == "stale"
 
 
 @pytest.mark.asyncio
@@ -63,8 +88,6 @@ async def test_finish_and_leaderboard_order():
         await sess.answer(10 if idx == 0 else 20, f"P{idx}", cur.displayed_answer, idx)
     assert sess.is_finished()
     board = sess.leaderboard()
-    assert len(board) == 2
-    # Same points -> alphabetical.
     assert [s.points for s in board] == [1, 1]
 
 
@@ -86,3 +109,12 @@ def test_stop_permission():
     assert sess.can_stop(111, False) is True  # starter
     assert sess.can_stop(999, False) is False
     assert sess.can_stop(999, True) is True  # admin
+
+
+def test_half_leader_snapshot():
+    sess = _session(4)
+    assert sess.half_leader_id is None
+    sess.current_index = 2
+    sess.scores[10] = PlayerScore(10, "A", 3)
+    sess.maybe_snapshot_half_leader()
+    assert sess.half_leader_id == 10

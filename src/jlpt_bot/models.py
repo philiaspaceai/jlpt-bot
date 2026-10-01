@@ -49,9 +49,3 @@ class PlayerScore:
     display_name: str
     points: int = 0
 
-
-@dataclass
-class AnswerResult:
-    kind: str  # correct | wrong | stale | finished
-    scorer_id: int | None = None
-    scorer_name: str | None = None
