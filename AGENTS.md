@@ -66,6 +66,10 @@
   interaction callback, not just `/jq start`.
 - Over SSH `uv` is not on `PATH`: use `/root/.local/bin/uv` absolute path
   (deploy workflow already does this; bare `uv` fails with exit 127).
+- After `edit_message(view=...)`, a Select snaps back to its initial option
+  unless option `default` flags mirror the pick (`_sync_defaults` in
+  `views.py`): discord.py 2.7.1 serializes only `default` flags, not the
+  transient selection (see `tests/test_setup_select.py`).
 
 ## Secrets (history was purged once — don't reintroduce)
 - Never commit real token/guild/channel IDs. `.env.example` uses placeholders;

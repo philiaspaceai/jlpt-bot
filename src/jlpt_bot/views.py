@@ -88,7 +88,8 @@ class SetupView(discord.ui.View):
 
     def _refresh_types(self) -> None:
         counts = self.store.category_counts(self.level)
-        opts = [discord.SelectOption(label=ALL_LABEL, value=ALL_TYPES, default=True)]
+        opts = [discord.SelectOption(label=ALL_LABEL, value=ALL_TYPES,
+                                     default=(self.type_id == ALL_TYPES))]
         for cat in CATEGORIES:
             n = counts.get(cat.id, 0)
             if n == 0:
@@ -98,24 +99,44 @@ class SetupView(discord.ui.View):
                     label=f"{cat.label} ({n})"[:100],
                     value=cat.id,
                     description=cat.description[:100],
+                    default=(self.type_id == cat.id),
                 )
             )
         if self.type_id not in {o.value for o in opts}:
             self.type_id = ALL_TYPES
+            for o in opts:
+                o.default = (o.value == ALL_TYPES)
         # Rebuild select options in place.
         self.type_select.options = opts
 
+    def _sync_defaults(self, select: discord.ui.Select) -> None:
+        """Mirror the user's pick into option defaults.
+
+        discord.py 2.7.1 serializes only option `default` flags on message
+        edits — the transient selection is not part of the payload. Without
+        this, an edit snaps the display back to the initial default.
+        """
+        try:
+            chosen = select.values[0]
+        except IndexError:
+            return
+        for opt in select.options:
+            opt.default = (opt.value == chosen)
+
     async def _on_level(self, interaction: discord.Interaction) -> None:
         self.level = self.level_select.values[0]
+        self._sync_defaults(self.level_select)
         self._refresh_types()
         await interaction.response.edit_message(view=self)
 
     async def _on_type(self, interaction: discord.Interaction) -> None:
         self.type_id = self.type_select.values[0]
+        self._sync_defaults(self.type_select)
         await interaction.response.defer()
 
     async def _on_count(self, interaction: discord.Interaction) -> None:
         self.count = int(self.count_select.values[0])
+        self._sync_defaults(self.count_select)
         await interaction.response.defer()
 
     @discord.ui.button(label="Start quiz", style=discord.ButtonStyle.success)
