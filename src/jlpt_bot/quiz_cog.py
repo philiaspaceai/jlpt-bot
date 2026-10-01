@@ -373,6 +373,7 @@ class QuizCog(commands.Cog):
 
     async def _send_profile(self, interaction: discord.Interaction, user: object, ephemeral: bool = False) -> None:
         await interaction.response.defer(ephemeral=ephemeral)
+        await self.ensure_season()
         uid = int(getattr(user, "id", 0))
         name = _display_name(user)
         avatar = None
@@ -416,6 +417,7 @@ class QuizCog(commands.Cog):
         if not self._guarded(interaction):
             await interaction.response.send_message(embed=embeds.guard_embed(), ephemeral=True)
             return
+        await self.ensure_season()
         rows = await self.db.leaderboard(10)
         embed = discord.Embed(title=f"🏆 Season {self.season.get('id', 1)} leaderboard",
                               colour=discord.Colour(0x5865F2))
