@@ -1,6 +1,18 @@
-# jlpt-bot
+# jlpt-bot — Free JLPT Quiz Discord Bot (N5–N1)
 
-Discord bot for JLPT quiz practice (N5–N1, fastest-finger scoring).
+[![CI](https://github.com/philiaspaceai/jlpt-bot/actions/workflows/ci.yml/badge.svg)](https://github.com/philiaspaceai/jlpt-bot/actions/workflows/ci.yml)
+[![Python 3.14](https://img.shields.io/badge/python-3.14-blue.svg)](https://www.python.org/)
+[![discord.py 2.7.1](https://img.shields.io/badge/discord.py-2.7.1-blurple.svg)](https://discordpy.readthedocs.io/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+Practice for the **Japanese-Language Proficiency Test (JLPT N5, N4, N3, N2, N1)**
+right inside Discord. **4,300+ Japanese quiz questions** covering kanji reading,
+vocabulary, grammar and reading comprehension, wrapped in a competitive game:
+10 ranks from Houga to Shindan, EXP, speed and streak bonuses, collectible
+badges, seasonal leaderboard resets, and rendered profile cards.
+
+Perfect for Japanese learners, JLPT study groups, and Discord servers that want
+a daily kanji and bunpou drill with friends.
 
 Built on **discord.py 2.7.1** exactly as documented in `docs/discord-py/`
 (`api.md`, `ext-commands-api.md`, `ext-tasks-index.md`, `interactions-api.md`).
@@ -135,4 +147,5 @@ stored in git or in workflow files.
 
 ## License
 
-MIT.
+MIT — see [LICENSE](LICENSE). Rank and badge icons by [game-icons.net](https://game-icons.net/)
+(Lorc, Delapouite, Carl Olsen, sbed, CC-BY 3.0).
