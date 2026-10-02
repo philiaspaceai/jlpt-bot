@@ -19,6 +19,23 @@ a daily kanji and bunpou drill with friends.
 Built on **discord.py 2.7.1** exactly as documented in `docs/discord-py/`
 (`api.md`, `ext-commands-api.md`, `ext-tasks-index.md`, `interactions-api.md`).
 
+## Profile card previews
+
+<table>
+  <tr>
+    <td><img width="400" alt="JLPT Dojo Meijin rank profile card" src="docs/preview/preview-05-meijin.png"></td>
+    <td><img width="400" alt="JLPT Dojo Shinsei rank profile card" src="docs/preview/preview-06-shinsei.png"></td>
+  </tr>
+  <tr>
+    <td><img width="400" alt="JLPT Dojo Seikan rank profile card" src="docs/preview/preview-07-seikan.png"></td>
+    <td><img width="400" alt="JLPT Dojo Ryuusei rank profile card" src="docs/preview/preview-08-ryuusei.png"></td>
+  </tr>
+  <tr>
+    <td><img width="400" alt="JLPT Dojo Suisei rank profile card" src="docs/preview/preview-09-suisei.png"></td>
+    <td><img width="400" alt="JLPT Dojo Shindan rank profile card" src="docs/preview/preview-10-shindan.png"></td>
+  </tr>
+</table>
+
 ## Features
 
 - `/jq start` opens a setup embed: level (N5–N1/ALL), question category
