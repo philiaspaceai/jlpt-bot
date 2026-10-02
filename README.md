@@ -5,6 +5,8 @@
 [![discord.py 2.7.1](https://img.shields.io/badge/discord.py-2.7.1-blurple.svg)](https://discordpy.readthedocs.io/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
+![JLPT Dojo — free JLPT quiz Discord bot for N5 to N1 practice with ranks, EXP and badges](docs/banner.png)
+
 Practice for the **Japanese-Language Proficiency Test (JLPT N5, N4, N3, N2, N1)**
 right inside Discord. **4,300+ Japanese quiz questions** covering kanji reading,
 vocabulary, grammar and reading comprehension, wrapped in a competitive game:
