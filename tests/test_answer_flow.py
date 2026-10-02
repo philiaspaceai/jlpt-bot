@@ -7,12 +7,12 @@ from unittest.mock import AsyncMock
 import discord
 import pytest
 
-from jlpt_bot import embeds
-from jlpt_bot.config import Settings
-from jlpt_bot.models import QuizConfig
-from jlpt_bot.quiz import QuizManager, QuizSession
-from jlpt_bot.store import QuestionStore, shuffle_options
-from jlpt_bot.views import QuizView
+from jlpt_dojo import embeds
+from jlpt_dojo.config import Settings
+from jlpt_dojo.models import QuizConfig
+from jlpt_dojo.quiz import QuizManager, QuizSession
+from jlpt_dojo.store import QuestionStore, shuffle_options
+from jlpt_dojo.views import QuizView
 
 
 def _session(n: int = 2) -> QuizSession:

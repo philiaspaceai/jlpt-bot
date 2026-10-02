@@ -12,7 +12,7 @@ from .db import Database
 from .quiz import QuizManager
 from .store import QuestionStore
 
-log = logging.getLogger("jlpt_bot.bot")
+log = logging.getLogger("jlpt_dojo.bot")
 
 
 def build_bot(settings: Settings, store: QuestionStore, manager: QuizManager,

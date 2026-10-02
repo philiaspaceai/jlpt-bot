@@ -23,7 +23,7 @@ from .models import QuizConfig
 from .quiz import QuizManager, QuizSession
 from .store import ALL_LEVELS, COUNT_CHOICES, QuestionStore, shuffle_options
 
-log = logging.getLogger("jlpt_bot.views")
+log = logging.getLogger("jlpt_dojo.views")
 
 
 def _is_admin(interaction: discord.Interaction) -> bool:

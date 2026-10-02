@@ -4,9 +4,9 @@ import random
 
 import pytest
 
-from jlpt_bot.models import PlayerScore, QuizConfig
-from jlpt_bot.quiz import QuizManager, QuizSession
-from jlpt_bot.store import QuestionStore, shuffle_options
+from jlpt_dojo.models import PlayerScore, QuizConfig
+from jlpt_dojo.quiz import QuizManager, QuizSession
+from jlpt_dojo.store import QuestionStore, shuffle_options
 
 
 def _config() -> QuizConfig:

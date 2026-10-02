@@ -1,4 +1,4 @@
-"""Entrypoint: `uv run jlpt-bot`. discord.py 2.7.1, see docs/discord-py/api.md (Client.run)."""
+"""Entrypoint: `uv run jlpt-dojo`. discord.py 2.7.1, see docs/discord-py/api.md (Client.run)."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ def main() -> None:
     settings = load_settings()
     logger = setup_logging(settings.log_path)
     logger.info(
-        "starting jlpt-bot guild=%s channel=%s data=%s",
+        "starting jlpt-dojo guild=%s channel=%s data=%s",
         settings.guild_id,
         settings.channel_id,
         settings.data_dir,

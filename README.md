@@ -1,6 +1,6 @@
-# jlpt-bot — Free JLPT Quiz Discord Bot (N5–N1)
+# jlpt-dojo — Free JLPT Quiz Discord Bot (N5–N1)
 
-[![CI](https://github.com/philiaspaceai/jlpt-bot/actions/workflows/ci.yml/badge.svg)](https://github.com/philiaspaceai/jlpt-bot/actions/workflows/ci.yml)
+[![CI](https://github.com/philiaspaceai/jlpt-dojo/actions/workflows/ci.yml/badge.svg)](https://github.com/philiaspaceai/jlpt-dojo/actions/workflows/ci.yml)
 [![Python 3.14](https://img.shields.io/badge/python-3.14-blue.svg)](https://www.python.org/)
 [![discord.py 2.7.1](https://img.shields.io/badge/discord.py-2.7.1-blurple.svg)](https://discordpy.readthedocs.io/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -49,7 +49,7 @@ cp .env.example .env
 # edit .env with your token and IDs
 uv sync
 uv run pytest
-uv run jlpt-bot
+uv run jlpt-dojo
 ```
 
 Or use the launcher (used by systemd on the VPS):
@@ -96,7 +96,7 @@ quiz_cog.py / views.py / embeds.py / bot.py   (discord layer)
 - `quiz_cog.py` owns `/jq start` and the `tasks.loop` idle watcher.
 - `QuizManager` enforces a single active session with `asyncio.Lock`.
 
-Pipeline: `start.sh` → `uv run jlpt-bot` → load settings + JSON →
+Pipeline: `start.sh` → `uv run jlpt-dojo` → load settings + JSON →
 `/jq start` (guard) → setup view → sample + shuffle → per-question
 embed + fresh `QuizView` → first correct +1 auto-next → leaderboard →
 cleanup. Idle watcher (`tasks.loop(30s)`) closes sessions idle over
@@ -128,21 +128,21 @@ uv run pytest -v
 
 VPS layout mirrors other bots (`ruri`, `hinari`, `ayumi`, `phix`):
 
-- Code: `/root/jlpt-bot`
-- Env: `/root/jlpt-bot/.env` (token lives only here)
-- Service: `/etc/systemd/system/jlpt-bot.service` (from `systemd/jlpt-bot.service`)
+- Code: `/root/jlpt-dojo`
+- Env: `/root/jlpt-dojo/.env` (token lives only here)
+- Service: `/etc/systemd/system/jlpt-dojo.service` (from `systemd/jlpt-dojo.service`)
 
 ```bash
-sudo cp systemd/jlpt-bot.service /etc/systemd/system/jlpt-bot.service
+sudo cp systemd/jlpt-dojo.service /etc/systemd/system/jlpt-dojo.service
 sudo systemctl daemon-reload
-sudo systemctl enable --now jlpt-bot
-journalctl -u jlpt-bot -f
-tail -f /root/jlpt-bot/log.txt
+sudo systemctl enable --now jlpt-dojo
+journalctl -u jlpt-dojo -f
+tail -f /root/jlpt-dojo/log.txt
 ```
 
 GitHub Actions (`.github/workflows/`): `ci.yml` runs pytest;
-`deploy.yml` pulls `/root/jlpt-bot` and restarts only the
-`jlpt-bot` service via SSH key secrets. The Discord token is never
+`deploy.yml` pulls `/root/jlpt-dojo` and restarts only the
+`jlpt-dojo` service via SSH key secrets. The Discord token is never
 stored in git or in workflow files.
 
 ## License

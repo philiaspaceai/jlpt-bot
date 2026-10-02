@@ -27,7 +27,7 @@ from .render import BANNERS, RANK_FILES, badge_icon, profile_card
 from .store import ALL_LEVELS, QuestionStore
 from .views import QuizView, SetupView
 
-log = logging.getLogger("jlpt_bot.cog")
+log = logging.getLogger("jlpt_dojo.cog")
 
 
 def _display_name(user: object) -> str:

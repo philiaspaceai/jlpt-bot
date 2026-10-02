@@ -18,8 +18,8 @@ jobs:
           script: |
             set -e
             export PATH="$PATH:/root/.local/bin"
-            cd /root/jlpt-bot
+            cd /root/jlpt-dojo
             git pull --ff-only
             /root/.local/bin/uv sync --frozen
-            systemctl restart jlpt-bot
-            systemctl is-active jlpt-bot
+            systemctl restart jlpt-dojo
+            systemctl is-active jlpt-dojo

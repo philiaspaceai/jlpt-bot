@@ -2,8 +2,8 @@
 
 import json
 
-from jlpt_bot.categories import CATEGORIES, classify
-from jlpt_bot.store import LEVELS, QuestionStore
+from jlpt_dojo.categories import CATEGORIES, classify
+from jlpt_dojo.store import LEVELS, QuestionStore
 
 # Snapshot of the mapping analysis (2026-09-30). If data grows, update the
 # table deliberately — a count shift means a rule regressed or new wording.

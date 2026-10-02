@@ -11,7 +11,7 @@ def setup_logging(log_path: str = "log.txt", level: int = logging.INFO) -> loggi
     if path.parent != Path(".") and str(path.parent) not in ("", "."):
         path.parent.mkdir(parents=True, exist_ok=True)
 
-    logger = logging.getLogger("jlpt_bot")
+    logger = logging.getLogger("jlpt_dojo")
     logger.setLevel(level)
     logger.handlers.clear()
     logger.propagate = False
@@ -34,5 +34,5 @@ def setup_logging(log_path: str = "log.txt", level: int = logging.INFO) -> loggi
     return logger
 
 
-def get_logger(name: str = "jlpt_bot") -> logging.Logger:
+def get_logger(name: str = "jlpt_dojo") -> logging.Logger:
     return logging.getLogger(name)

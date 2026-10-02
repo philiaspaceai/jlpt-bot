@@ -3,8 +3,8 @@
 import pytest
 import yaml
 
-from jlpt_bot import badges as engine
-from jlpt_bot.db import Database, season_exp_from_file
+from jlpt_dojo import badges as engine
+from jlpt_dojo.db import Database, season_exp_from_file
 
 
 @pytest.fixture()

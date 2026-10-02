@@ -2,7 +2,7 @@
 
 import os
 
-from jlpt_bot.config import Settings, is_allowed_context, load_settings
+from jlpt_dojo.config import Settings, is_allowed_context, load_settings
 
 
 def test_guard_allows_only_configured():

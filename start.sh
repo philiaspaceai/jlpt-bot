@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 set -euo pipefail
 cd "$(dirname "$0")"
-exec uv run jlpt-bot
+exec uv run jlpt-dojo

@@ -2,10 +2,10 @@
 
 import random
 
-from jlpt_bot import embeds
-from jlpt_bot.models import QuizConfig
-from jlpt_bot.quiz import QuizSession
-from jlpt_bot.store import QuestionStore, shuffle_options
+from jlpt_dojo import embeds
+from jlpt_dojo.models import QuizConfig
+from jlpt_dojo.quiz import QuizSession
+from jlpt_dojo.store import QuestionStore, shuffle_options
 
 
 def _sess() -> QuizSession:

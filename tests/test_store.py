@@ -2,8 +2,8 @@
 
 import random
 
-from jlpt_bot.categories import CATEGORIES, classify
-from jlpt_bot.store import ALL_LEVELS, QuestionStore
+from jlpt_dojo.categories import CATEGORIES, classify
+from jlpt_dojo.store import ALL_LEVELS, QuestionStore
 
 
 def test_load_real_data():

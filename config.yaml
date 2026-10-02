@@ -1,4 +1,4 @@
-# jlpt-bot progression tuning. Numbers approved 2026-10-01.
+# jlpt-dojo progression tuning. Numbers approved 2026-10-01.
 # Season EXP resets every `season_months`; the whole SQLite file is archived.
 
 season:

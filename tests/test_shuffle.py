@@ -2,8 +2,8 @@
 
 import random
 
-from jlpt_bot.models import Question
-from jlpt_bot.store import shuffle_options
+from jlpt_dojo.models import Question
+from jlpt_dojo.store import shuffle_options
 
 
 def _q() -> Question:

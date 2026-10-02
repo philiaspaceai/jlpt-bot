@@ -1,11 +1,11 @@
-# AGENTS.md — jlpt-bot
+# AGENTS.md — jlpt-dojo
 
 ## Stack (pinned)
 - `discord.py==2.7.1` — do not upgrade without checking `docs/discord-py/` first.
   Authority: `api.md`, `ext-commands-api.md`, `ext-tasks-index.md`, `interactions-api.md`.
-- Python `>=3.14` via `uv` (auto-provisions). Entrypoint is `uv run jlpt-bot`
-  (`[project.scripts]` → `src/jlpt_bot/__main__.py:main`). Production runs
-  `./start.sh`, which is what `systemd/jlpt-bot.service` executes.
+- Python `>=3.14` via `uv` (auto-provisions). Entrypoint is `uv run jlpt-dojo`
+  (`[project.scripts]` → `src/jlpt_dojo/__main__.py:main`). Production runs
+  `./start.sh`, which is what `systemd/jlpt-dojo.service` executes.
 
 ## Commands
 - `uv sync --group dev` then `uv run pytest -v`
@@ -56,7 +56,7 @@
 - Season DB is one SQLite file; rollover archives the whole file to
   `db/archive/` and starts fresh. Lifetime = current + archives.
 - Profile PNGs render from `templates/` via WeasyPrint (`render.py`); rank art
-  and themed icons ship under `src/jlpt_bot/assets/`. `design/` is review-only
+  and themed icons ship under `src/jlpt_dojo/assets/`. `design/` is review-only
   mockups, never imported by the bot.
 
 ## Design (review mockups in `design/`, gitignored)
@@ -87,10 +87,10 @@
 ## Secrets (history was purged once — don't reintroduce)
 - Never commit real token/guild/channel IDs. `.env.example` uses placeholders;
   `.env` and `log.txt` are gitignored. Real env lives only at
-  `/root/jlpt-bot/.env` (mode 600).
+  `/root/jlpt-dojo/.env` (mode 600).
 - Deploy (`deploy.yml`) is `git pull --ff-only` + `uv sync --frozen` +
-  `systemctl restart jlpt-bot` via `VPS_*`/`SSH_PRIVATE_KEY` secrets.
+  `systemctl restart jlpt-dojo` via `VPS_*`/`SSH_PRIVATE_KEY` secrets.
   After any history rewrite, ff-only breaks: fix VPS with
   `git fetch origin --prune && git reset --hard origin/main`.
 - VPS shares `/root` with `ruri/hinari/ayumi/phix`: only touch
-  `/root/jlpt-bot` and the `jlpt-bot` service.
+  `/root/jlpt-dojo` and the `jlpt-dojo` service.

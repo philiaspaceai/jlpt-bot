@@ -2,9 +2,9 @@
 
 from pathlib import Path
 
-from jlpt_bot.render import RANK_FILES, badge_icon, profile_card
+from jlpt_dojo.render import RANK_FILES, badge_icon, profile_card
 
-PKG = Path("src/jlpt_bot")
+PKG = Path("src/jlpt_dojo")
 ASSETS = PKG / "assets"
 
 
@@ -14,7 +14,7 @@ def _payload(theme: str, rank_idx: int) -> dict:
     names = ["Houga", "Reimei", "Saku", "Seikou", "Meijin", "Shinsei",
              "Seikan", "Ryuusei", "Suisei", "Shindan"]
     ja = ["萌芽", "黎明", "咲", "星光", "名人", "新星", "星冠", "流星", "彗星", "神断"]
-    from jlpt_bot.render import BANNERS  # noqa: verify export surface
+    from jlpt_dojo.render import BANNERS  # noqa: verify export surface
     return {
         "theme": theme,
         "rank": {"id": rank_id, "en": names[rank_idx], "ja": ja[rank_idx],

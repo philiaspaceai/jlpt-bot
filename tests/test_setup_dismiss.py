@@ -5,10 +5,10 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from jlpt_bot.config import Settings
-from jlpt_bot.quiz import QuizManager
-from jlpt_bot.store import QuestionStore
-from jlpt_bot.views import SetupView
+from jlpt_dojo.config import Settings
+from jlpt_dojo.quiz import QuizManager
+from jlpt_dojo.store import QuestionStore
+from jlpt_dojo.views import SetupView
 
 
 import discord

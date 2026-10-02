@@ -2,7 +2,7 @@
 
 import datetime as dt
 
-from jlpt_bot import progression as p
+from jlpt_dojo import progression as p
 
 CFG = {
     "base_by_level": {"N5": 10, "N4": 20, "N3": 40, "N2": 80, "N1": 150},

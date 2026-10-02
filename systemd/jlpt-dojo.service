@@ -6,12 +6,12 @@ Wants=network-online.target
 [Service]
 Type=simple
 User=root
-WorkingDirectory=/root/jlpt-bot
-ExecStart=/root/jlpt-bot/start.sh
+WorkingDirectory=/root/jlpt-dojo
+ExecStart=/root/jlpt-dojo/start.sh
 Restart=always
 RestartSec=5
 Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/root/.local/bin
-EnvironmentFile=/root/jlpt-bot/.env
+EnvironmentFile=/root/jlpt-dojo/.env
 
 [Install]
 WantedBy=multi-user.target
